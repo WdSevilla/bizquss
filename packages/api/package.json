@@ -1,0 +1,27 @@
+{
+  "name": "@remarq/api",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "build": "echo 'No build step required'",
+    "test": "node --test src/**/*.test.js",
+    "lint": "eslint src/",
+    "db:migrate": "node src/db/migrate.js"
+  },
+  "dependencies": {
+    "@remarq/core": "workspace:*",
+    "fastify": "^4.27.0",
+    "@fastify/cors": "^9.0.0",
+    "@fastify/jwt": "^8.0.0",
+    "@fastify/oauth2": "^7.0.0",
+    "@fastify/rate-limit": "^9.0.0",
+    "@fastify/helmet": "^11.0.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  }
+}
