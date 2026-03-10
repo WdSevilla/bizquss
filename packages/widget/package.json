@@ -2,7 +2,8 @@
   "name": "@remarq/widget",
   "version": "0.1.0",
   "type": "module",
-  "main": "./dist/widget.js",
+  "main": "./dist/remarq.min.js",
+  "module": "./dist/remarq.esm.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

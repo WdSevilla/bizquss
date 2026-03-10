@@ -1,5 +1,5 @@
 import fp from 'fastify-plugin'
-import { CommentRepository, SiteRepository, ThreadRepository } from '@remarq/core'
+import { CommentRepository, SiteRepository, ThreadRepository, UserRepository } from '@remarq/core'
 
 /**
  * Plugin que inyecta el adapter de base de datos correcto
@@ -22,6 +22,7 @@ async function dbPlugin(app) {
   app.decorate('comments', new CommentRepository(db))
   app.decorate('sites',    new SiteRepository(db))
   app.decorate('threads',  new ThreadRepository(db))
+  app.decorate('users',    new UserRepository(db))
 
   app.addHook('onClose', async () => db.close?.())
 }

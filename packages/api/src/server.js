@@ -1,4 +1,8 @@
-import 'dotenv/config'
+import { config } from 'dotenv'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+// Busca el .env en la raíz del monorepo (dos niveles arriba de packages/api/src)
+config({ path: join(dirname(fileURLToPath(import.meta.url)), '../../../.env') })
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
@@ -8,7 +12,9 @@ import jwt from '@fastify/jwt'
 import { commentsRoutes } from './routes/comments.js'
 import { sitesRoutes } from './routes/sites.js'
 import { authRoutes } from './routes/auth.js'
+import { adminRoutes } from './routes/admin.js'
 import { dbPlugin } from './plugins/db.js'
+import mailerPlugin from './services/mailer.js'
 
 const app = Fastify({ logger: true })
 
@@ -29,11 +35,17 @@ await app.register(jwt, {
 
 // Base de datos (inyectada como plugin)
 await app.register(dbPlugin)
+await app.register(mailerPlugin)
 
-// Rutas
+// Rutas públicas (widget)
 await app.register(commentsRoutes, { prefix: '/v1/comments' })
 await app.register(sitesRoutes,   { prefix: '/v1/sites' })
-await app.register(authRoutes,    { prefix: '/v1/auth' })
+
+// Auth (OAuth + JWT)
+await app.register(authRoutes, { prefix: '/v1/auth' })
+
+// Panel admin (JWT requerido)
+await app.register(adminRoutes, { prefix: '/v1/admin' })
 
 // Health check
 app.get('/health', () => ({ status: 'ok', version: '0.1.0' }))

@@ -1,6 +1,7 @@
 export { sanitizeContent, renderMarkdown } from './content.js'
-export { hashIp, generateApiKey } from './crypto.js'
+export { hashIp, generateApiKey, getDailySalt } from './crypto.js'
 export { validateComment, validateSite } from './validators.js'
 export { CommentRepository } from './repositories/comment.js'
 export { SiteRepository } from './repositories/site.js'
 export { ThreadRepository } from './repositories/thread.js'
+export { UserRepository } from './repositories/user.js'

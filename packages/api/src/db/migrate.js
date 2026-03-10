@@ -3,13 +3,13 @@
  * Lee los archivos .sql de /migrations en orden y los ejecuta
  * solo si no han sido aplicados antes.
  */
-import 'dotenv/config'
+import { config } from 'dotenv'
 import { readdir, readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const MIGRATIONS_DIR = join(__dirname, 'migrations')
+config({ path: join(__dirname, '../../../../.env') })
 
 async function run() {
   const driver = process.env.DB_DRIVER ?? 'sqlite'
@@ -23,13 +23,16 @@ async function run() {
     db = createSqliteAdapter(process.env.DATABASE_URL ?? './remarq.db')
   }
 
-  // Asegurar que la tabla de migraciones existe
-  await db.query(`
-    CREATE TABLE IF NOT EXISTS _migrations (
-      name TEXT PRIMARY KEY,
-      applied_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
-    )
-  `)
+  // Directorio de migraciones según el driver
+  const MIGRATIONS_DIR = driver === 'postgres'
+    ? join(__dirname, '../../../../../adapters/postgres/src/migrations')
+    : join(__dirname, 'migrations')
+
+  // Asegurar que la tabla de migraciones existe (DDL específico por driver)
+  const createMigrationsTable = driver === 'postgres'
+    ? `CREATE TABLE IF NOT EXISTS _migrations (name TEXT PRIMARY KEY, applied_at TIMESTAMPTZ DEFAULT NOW())`
+    : `CREATE TABLE IF NOT EXISTS _migrations (name TEXT PRIMARY KEY, applied_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')))`
+  await db.query(createMigrationsTable)
 
   const applied = new Set(
     (await db.query('SELECT name FROM _migrations')).map(r => r.name)

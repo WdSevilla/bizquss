@@ -39,4 +39,20 @@ export class ThreadRepository {
       [siteId]
     )
   }
+
+  async findById(id) {
+    const [thread] = await this.db.query(
+      `SELECT * FROM threads WHERE id = $1`,
+      [id]
+    )
+    return thread ?? null
+  }
+
+  async setLocked(id, locked) {
+    const [thread] = await this.db.query(
+      `UPDATE threads SET is_locked = $1 WHERE id = $2 RETURNING *`,
+      [locked ? 1 : 0, id]
+    )
+    return thread
+  }
 }

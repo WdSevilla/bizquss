@@ -3,19 +3,24 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    ports:
-      - "3100:3100"
+    # Puerto solo expuesto internamente — nginx actúa de reverse proxy.
+    # Descomenta la línea siguiente solo para depuración directa:
+    # ports:
+    #   - "3100:3100"
     environment:
       - DB_DRIVER=${DB_DRIVER:-sqlite}
       - DATABASE_URL=${DATABASE_URL:-/data/remarq.db}
       - PORT=3100
       - HOST=0.0.0.0
-      - BASE_URL=${BASE_URL:-http://localhost:3100}
+      - BASE_URL=${BASE_URL:-http://localhost}
       - JWT_SECRET=${JWT_SECRET:?Debes definir JWT_SECRET}
       - SALT=${SALT:?Debes definir SALT}
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-}
       - DEFAULT_MODERATION=${DEFAULT_MODERATION:-pending}
+      # URL del admin (a donde redirige el callback de OAuth).
+      # En producción: http://TU_IP o https://TU_DOMINIO
+      - ADMIN_URL=${ADMIN_URL:-http://localhost}
     volumes:
       - remarq_data:/data
     restart: unless-stopped
@@ -24,6 +29,17 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: docker/nginx.Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
 
   # Solo activar si DB_DRIVER=postgres
   postgres:

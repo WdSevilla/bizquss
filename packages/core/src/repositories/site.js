@@ -6,7 +6,7 @@ export class SiteRepository {
 
   async findByApiKey(apiKey) {
     const [site] = await this.db.query(
-      `SELECT id, domain, settings FROM sites WHERE api_key = $1`,
+      `SELECT id, domain, owner_id, settings FROM sites WHERE api_key = $1`,
       [apiKey]
     )
     return site ?? null
@@ -37,5 +37,16 @@ export class SiteRepository {
       [JSON.stringify(settings), id]
     )
     return site
+  }
+
+  async listByOwner(ownerId) {
+    return this.db.query(
+      `SELECT id, domain, api_key, settings, created_at FROM sites WHERE owner_id = $1 ORDER BY created_at DESC`,
+      [ownerId]
+    )
+  }
+
+  async delete(id) {
+    await this.db.query(`DELETE FROM sites WHERE id = $1`, [id])
   }
 }

@@ -18,5 +18,8 @@
   "workspaces": [
     "packages/*",
     "adapters/*"
-  ]
+  ],
+  "pnpm": {
+    "onlyBuiltDependencies": ["better-sqlite3", "esbuild", "vue-demi"]
+  }
 }

@@ -31,6 +31,9 @@ export async function commentsRoutes(app) {
   // Crea un comentario nuevo (pendiente de moderación)
   app.post('/', {
     preHandler: [requireApiKey],
+    config: {
+      rateLimit: { max: 5, timeWindow: '1 minute' },
+    },
   }, async (request, reply) => {
     const { thread_url, title, parent_id, author_name, author_email, content } = request.body ?? {}
 
@@ -62,6 +65,16 @@ export async function commentsRoutes(app) {
       contentHtml,
       ipHash,
     })
+
+    // Notificar al owner del sitio si el comentario queda pendiente
+    if (comment.status === 'pending') {
+      const owner = await request.server.users.findById(request.site.owner_id)
+      request.server.mailer.notifyNewComment(owner?.email, {
+        comment,
+        thread,
+        site: request.site,
+      }).catch(err => request.server.log.warn({ err }, 'Error enviando notificación de comentario'))
+    }
 
     reply.code(201)
     return comment

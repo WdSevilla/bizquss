@@ -67,4 +67,46 @@ export class CommentRepository {
     )
     return comment ?? null
   }
+
+  /**
+   * Lista TODOS los comentarios de un hilo (admin), con filtro opcional de estado.
+   * @param {string} threadId
+   * @param {'pending'|'approved'|'spam'|'deleted'|'all'} [status='all']
+   * @returns {Promise<object[]>}
+   */
+  async adminListByThread(threadId, status = 'all') {
+    if (status === 'all') {
+      return this.db.query(
+        `SELECT id, parent_id, author_name, author_email, content, content_html,
+                status, ip_hash, created_at, edited_at
+         FROM comments
+         WHERE thread_id = $1 AND status != 'deleted'
+         ORDER BY created_at ASC`,
+        [threadId]
+      )
+    }
+    return this.db.query(
+      `SELECT id, parent_id, author_name, author_email, content, content_html,
+              status, ip_hash, created_at, edited_at
+       FROM comments
+       WHERE thread_id = $1 AND status = $2
+       ORDER BY created_at ASC`,
+      [threadId, status]
+    )
+  }
+
+  /**
+   * Cuenta comentarios pendientes agrupados por sitio.
+   * @param {string} siteId
+   * @returns {Promise<number>}
+   */
+  async countPendingBySite(siteId) {
+    const [{ count }] = await this.db.query(
+      `SELECT COUNT(*) as count FROM comments c
+       JOIN threads t ON c.thread_id = t.id
+       WHERE t.site_id = $1 AND c.status = 'pending'`,
+      [siteId]
+    )
+    return Number(count)
+  }
 }

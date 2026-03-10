@@ -10,6 +10,6 @@
     "test": "node --test src/**/*.test.js"
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.0"
+    "better-sqlite3": "^11.0.0"
   }
 }

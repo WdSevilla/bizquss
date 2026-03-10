@@ -5,8 +5,10 @@ export default defineConfig({
     lib: {
       entry: 'src/remarq-widget.js',
       name: 'RemarqWidget',
-      fileName: 'widget',
-      formats: ['es', 'iife'],
+      // IIFE → remarq.min.js (para <script src="...">)
+      // ES  → remarq.esm.js  (para import / bundlers)
+      fileName: (format) => format === 'iife' ? 'remarq.min.js' : 'remarq.esm.js',
+      formats: ['iife', 'es'],
     },
     rollupOptions: {
       // Sin dependencias externas — el widget es auto-contenido
