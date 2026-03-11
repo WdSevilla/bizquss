@@ -15,8 +15,8 @@ COPY packages/admin  ./packages/admin
 COPY packages/widget ./packages/widget
 COPY packages/core   ./packages/core
 
-RUN pnpm --filter @remarq/admin build
-RUN pnpm --filter @remarq/widget build
+RUN pnpm --filter @bizquss/admin build
+RUN pnpm --filter @bizquss/widget build
 
 # Stage 2: nginx sirve el build estático
 FROM nginx:alpine
