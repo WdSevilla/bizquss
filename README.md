@@ -10,73 +10,155 @@ Sistema de comentarios open-source, self-hosteable. Alternativa a Disqus/Comment
 
 ---
 
+## Índice
+
+- [Despliegue con Docker](#despliegue-rápido-con-docker)
+- [Incrustar el widget](#incrustar-el-widget)
+- [Desarrollo local](#desarrollo-local)
+- [Moderación](#moderación)
+- [Licencia](#licencia)
+
+---
+
 ## Despliegue rápido con Docker
 
 ### 1. Requisitos previos
 
-- Docker y Docker Compose instalados
-- Una OAuth App en GitHub y/o Google (ver más abajo)
+- [Docker](https://docs.docker.com/get-docker/) y [Docker Compose](https://docs.docker.com/compose/install/) instalados
+- Git para clonar el repositorio
+- Una OAuth App en GitHub y/o Google (ver paso 3)
 
-### 2. Configurar variables de entorno
+```bash
+# Verificar que Docker está disponible
+docker --version        # Docker 24+ recomendado
+docker compose version  # Compose v2+
+```
+
+### 2. Clonar el repositorio
+
+```bash
+git clone https://github.com/tu-usuario/bizquss.git
+cd bizquss
+```
+
+### 3. Registrar la OAuth App
+
+Bizquss requiere al menos un proveedor OAuth para autenticar administradores. Configura GitHub, Google o ambos.
+
+**GitHub** (recomendado):
+1. Ve a [github.com/settings/developers](https://github.com/settings/developers) → *New OAuth App*
+2. Rellena los campos:
+   - **Application name**: `Bizquss` (o el nombre que prefieras)
+   - **Homepage URL**: `http://TU_IP`
+   - **Authorization callback URL**: `http://TU_IP/v1/auth/github/callback`
+3. Pulsa *Register application* y copia el **Client ID** y el **Client Secret**
+
+**Google** (opcional):
+1. Ve a [console.cloud.google.com](https://console.cloud.google.com) → *APIs y servicios* → *Credenciales* → *Crear credenciales* → *ID de cliente OAuth 2.0*
+2. Tipo de aplicación: **Aplicación web**
+3. **URI de redireccionamiento autorizado**: `http://TU_IP/v1/auth/google/callback`
+4. Copia el **Client ID** y el **Client Secret**
+
+> Sustituye `TU_IP` por la IP o dominio donde servirás Bizquss (p. ej. `192.168.1.10` o `comentarios.tudominio.com`).
+
+### 4. Configurar variables de entorno
 
 ```bash
 cp .env.example .env
 ```
 
-Edita `.env` con tus valores:
+Edita `.env` con tus valores. Los campos marcados con `*` son **obligatorios**:
 
-| Variable | Descripción |
-|---|---|
-| `JWT_SECRET` | Clave secreta para firmar tokens JWT (usa una cadena larga aleatoria) |
-| `SALT` | Sal para anonimizar IPs de comentaristas |
-| `GITHUB_CLIENT_ID` | ID de tu OAuth App de GitHub |
-| `GITHUB_CLIENT_SECRET` | Secret de tu OAuth App de GitHub |
-| `GOOGLE_CLIENT_ID` | ID de tu OAuth App de Google (opcional) |
-| `GOOGLE_CLIENT_SECRET` | Secret de tu OAuth App de Google (opcional) |
-| `ADMIN_URL` | URL pública del panel admin, ej. `http://192.168.1.10` |
-| `BASE_URL` | URL pública de la API, ej. `http://192.168.1.10` |
-| `SMTP_HOST` | Servidor SMTP para notificaciones (opcional) |
+| Variable | * | Descripción | Ejemplo |
+|---|---|---|---|
+| `JWT_SECRET` | ✓ | Clave secreta para firmar tokens JWT. Usa una cadena larga y aleatoria. | `openssl rand -hex 32` |
+| `SALT` | ✓ | Sal para anonimizar IPs de comentaristas. | `openssl rand -hex 16` |
+| `BASE_URL` | ✓ | URL pública de la API (sin barra final). | `http://192.168.1.10` |
+| `ADMIN_URL` | ✓ | URL pública del panel admin (sin barra final). | `http://192.168.1.10` |
+| `GITHUB_CLIENT_ID` | ✓* | ID de tu OAuth App de GitHub. | `Iv1.abc123` |
+| `GITHUB_CLIENT_SECRET` | ✓* | Secret de tu OAuth App de GitHub. | `abc123...` |
+| `GOOGLE_CLIENT_ID` | — | ID de tu OAuth App de Google (opcional). | `123.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | — | Secret de tu OAuth App de Google (opcional). | `GOCSPX-...` |
+| `DEFAULT_MODERATION` | — | Estado por defecto de nuevos comentarios. | `pending` \| `auto_approve` |
+| `MAX_COMMENT_LENGTH` | — | Longitud máxima de un comentario en caracteres. | `10000` |
+| `SMTP_HOST` | — | Servidor SMTP para notificaciones por email. | `smtp.gmail.com` |
+| `SMTP_PORT` | — | Puerto SMTP. | `587` |
+| `SMTP_USER` | — | Usuario SMTP. | `tu@gmail.com` |
+| `SMTP_PASS` | — | Contraseña SMTP. | `app-password` |
+| `SMTP_FROM` | — | Dirección remitente de los emails. | `noreply@tudominio.com` |
 
-### 3. Registrar la OAuth App
+> `*` Al menos GitHub **o** Google debe estar configurado.
 
-**GitHub:**
-1. Ve a [github.com/settings/developers](https://github.com/settings/developers) → *New OAuth App*
-2. **Authorization callback URL**: `http://TU_IP/v1/auth/github/callback`
+Para generar valores seguros para `JWT_SECRET` y `SALT`:
+```bash
+openssl rand -hex 32   # para JWT_SECRET
+openssl rand -hex 16   # para SALT
+```
 
-**Google** (opcional):
-1. Ve a [console.cloud.google.com](https://console.cloud.google.com) → *APIs y servicios* → *Credenciales* → *Crear credenciales* → *ID de cliente OAuth*
-2. **URI de redireccionamiento autorizado**: `http://TU_IP/v1/auth/google/callback`
-
-### 4. Arrancar
+### 5. Arrancar con SQLite (por defecto)
 
 ```bash
 cd docker
 docker compose up -d --build
 ```
 
-- Panel de administración: `http://TU_IP/`
-- API: `http://TU_IP/v1/`
+Docker descargará las imágenes base, compilará los contenedores y levantará los servicios. La primera vez puede tardar varios minutos.
 
-El primer usuario que inicie sesión queda como administrador automáticamente.
+Una vez iniciado:
+- **Panel de administración**: `http://TU_IP/`
+- **API**: `http://TU_IP/v1/`
 
-### Con PostgreSQL
+El **primer usuario** que inicie sesión queda registrado como administrador automáticamente.
+
+Los datos SQLite se persisten en el volumen Docker `bizquss_data` (en `/data/bizquss.db` dentro del contenedor).
+
+#### Verificar que está corriendo
+
+```bash
+docker compose ps              # ver estado de los contenedores
+docker compose logs -f api     # logs de la API en tiempo real
+curl http://TU_IP/health       # debe devolver {"status":"ok"}
+```
+
+### 5b. Arrancar con PostgreSQL
+
+Activa el perfil `postgres` y proporciona la contraseña:
 
 ```bash
 cd docker
 POSTGRES_PASSWORD=mipassword docker compose --profile postgres up -d --build
 ```
 
-Y en `.env`:
-```
+Y en `.env` cambia las variables de base de datos:
+```env
 DB_DRIVER=postgres
 DATABASE_URL=postgresql://bizquss:mipassword@postgres:5432/bizquss
 ```
+
+Reinicia los servicios para que lean la nueva configuración:
+```bash
+docker compose down
+POSTGRES_PASSWORD=mipassword docker compose --profile postgres up -d
+```
+
+### Actualizar a una nueva versión
+
+```bash
+cd docker
+git pull
+docker compose down
+docker compose up -d --build
+```
+
+Los datos (volúmenes Docker) se conservan entre actualizaciones.
 
 ---
 
 ## Incrustar el widget
 
-### Instalación directa (CDN)
+Primero crea un sitio en el panel de administración (`http://TU_IP/`) y copia la **API key** generada.
+
+### Instalación directa (sin bundler)
 
 ```html
 <script src="http://TU_IP/widget/bizquss.min.js"></script>
@@ -86,13 +168,16 @@ DATABASE_URL=postgresql://bizquss:mipassword@postgres:5432/bizquss
 ></bizquss-widget>
 ```
 
-### Con bundler (npm)
+### Con bundler (npm/pnpm)
 
 ```bash
 npm install @bizquss/widget
+# o
+pnpm add @bizquss/widget
 ```
 
 ```js
+// Importar una sola vez (p. ej. en main.js)
 import '@bizquss/widget'
 ```
 
@@ -102,12 +187,14 @@ import '@bizquss/widget'
 
 ### Atributos del widget
 
-| Atributo | Requerido | Descripción |
-|---|---|---|
-| `api-url` | Sí | URL base de tu instancia de Bizquss |
-| `site-key` | Sí | API key del sitio (se obtiene en el panel) |
-| `thread-url` | No | URL del hilo (por defecto `window.location.pathname`) |
-| `theme` | No | `auto` (por defecto), `light`, `dark` |
+| Atributo | Requerido | Por defecto | Descripción |
+|---|---|---|---|
+| `api-url` | Sí | — | URL base de tu instancia de Bizquss |
+| `site-key` | Sí | — | API key del sitio (se obtiene en el panel) |
+| `thread-url` | No | `window.location.pathname` | Identificador del hilo de comentarios |
+| `theme` | No | `auto` | `auto`, `light` o `dark` |
+
+El atributo `thread-url` permite agrupar comentarios por página. Si no se especifica, usa la ruta actual del navegador.
 
 ---
 
@@ -116,24 +203,54 @@ import '@bizquss/widget'
 ### Requisitos
 
 - Node.js 20+
-- pnpm (`npm install -g pnpm`)
-
-### Setup
+- pnpm 9+ — `npm install -g pnpm`
 
 ```bash
-# Instalar dependencias
+node --version   # v20+
+pnpm --version   # 9+
+```
+
+### Setup inicial
+
+```bash
+# 1. Instalar todas las dependencias del monorepo
 pnpm install
 
-# Copiar variables de entorno
+# 2. Copiar las variables de entorno
 cp .env.example .env
+# Edita .env: ajusta BASE_URL, ADMIN_URL, OAuth credentials...
 
-# Ejecutar migraciones
-npx pnpm --filter @bizquss/api db:migrate
+# 3. Ejecutar migraciones de base de datos
+pnpm db:migrate
 
-# Arrancar API (puerto 3100) y admin (puerto 5173) en paralelo
-pnpm --filter @bizquss/api dev &
-pnpm --filter @bizquss/admin dev
+# 4. Arrancar todos los servicios en paralelo
+pnpm dev
 ```
+
+O arrancar servicios individualmente:
+
+```bash
+# Solo la API (puerto 3100)
+pnpm --filter @bizquss/api dev
+
+# Solo el panel admin (puerto 5173)
+pnpm --filter @bizquss/admin dev
+
+# Solo el widget (modo watch)
+pnpm --filter @bizquss/widget dev
+```
+
+En desarrollo, la API corre en `http://localhost:3100` y el admin en `http://localhost:5173`. Configura `ADMIN_URL=http://localhost:5173` y `BASE_URL=http://localhost:3100` en `.env`.
+
+### Scripts disponibles
+
+| Comando | Descripción |
+|---|---|
+| `pnpm dev` | Arranca API, admin y widget en modo watch (paralelo) |
+| `pnpm build` | Compila todos los paquetes para producción |
+| `pnpm test` | Ejecuta todos los tests |
+| `pnpm lint` | Linting de todos los paquetes |
+| `pnpm db:migrate` | Aplica las migraciones de base de datos |
 
 ### Estructura del monorepo
 
@@ -144,7 +261,7 @@ packages/
   admin/    — panel Vue 3       (puerto 5173 en dev)
   widget/   — Web Component <bizquss-widget>
 adapters/
-  sqlite/   — adapter SQLite
+  sqlite/   — adapter SQLite (por defecto)
   postgres/ — adapter PostgreSQL
 docker/     — Dockerfile, nginx.Dockerfile, docker-compose.yml, nginx.conf
 ```
@@ -153,23 +270,34 @@ docker/     — Dockerfile, nginx.Dockerfile, docker-compose.yml, nginx.conf
 
 ```bash
 pnpm --filter @bizquss/widget build
-# → packages/widget/dist/bizquss.min.js  (para <script src>)
-# → packages/widget/dist/bizquss.esm.js  (para bundlers)
+# Salida:
+#   packages/widget/dist/bizquss.min.js   → para <script src>
+#   packages/widget/dist/bizquss.esm.js   → para bundlers (import)
+```
+
+### Tests
+
+```bash
+pnpm test                              # todos los tests
+pnpm --filter @bizquss/core test       # solo core
+pnpm --filter @bizquss/api test        # solo API
+pnpm --filter @bizquss/sqlite test     # solo adapter SQLite
+pnpm --filter @bizquss/postgres test   # solo adapter PostgreSQL
 ```
 
 ---
 
 ## Moderación
 
-El panel en `/` permite:
+El panel en `http://TU_IP/` permite:
 
 - **Sitios**: crear sitios y obtener la API key para el widget
 - **Hilos**: ver todos los hilos de un sitio, bloquear/desbloquear
 - **Comentarios**: aprobar, marcar como spam, restaurar o eliminar
 
-El estado por defecto de los comentarios nuevos se controla con `DEFAULT_MODERATION`:
-- `pending` — requieren aprobación manual (recomendado)
-- `auto_approve` — se publican automáticamente
+El estado por defecto de los comentarios nuevos se controla con `DEFAULT_MODERATION` en `.env`:
+- `pending` — requieren aprobación manual antes de ser visibles (recomendado)
+- `auto_approve` — se publican automáticamente sin revisión
 
 ---
 
