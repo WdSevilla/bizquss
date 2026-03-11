@@ -1,5 +1,5 @@
 import fp from 'fastify-plugin'
-import { CommentRepository, SiteRepository, ThreadRepository, UserRepository } from '@remarq/core'
+import { CommentRepository, SiteRepository, ThreadRepository, UserRepository } from '@bizquss/core'
 
 /**
  * Plugin que inyecta el adapter de base de datos correcto
@@ -10,11 +10,11 @@ async function dbPlugin(app) {
 
   let db
   if (driver === 'postgres') {
-    const { createPostgresAdapter } = await import('@remarq/adapter-postgres')
+    const { createPostgresAdapter } = await import('@bizquss/adapter-postgres')
     db = await createPostgresAdapter(process.env.DATABASE_URL)
   } else {
-    const { createSqliteAdapter } = await import('@remarq/adapter-sqlite')
-    db = createSqliteAdapter(process.env.DATABASE_URL ?? './remarq.db')
+    const { createSqliteAdapter } = await import('@bizquss/adapter-sqlite')
+    db = createSqliteAdapter(process.env.DATABASE_URL ?? './bizquss.db')
   }
 
   // Decorar la instancia de Fastify con los repositorios

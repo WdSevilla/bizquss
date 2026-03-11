@@ -9,7 +9,7 @@ services:
     #   - "3100:3100"
     environment:
       - DB_DRIVER=${DB_DRIVER:-sqlite}
-      - DATABASE_URL=${DATABASE_URL:-/data/remarq.db}
+      - DATABASE_URL=${DATABASE_URL:-/data/bizquss.db}
       - PORT=3100
       - HOST=0.0.0.0
       - BASE_URL=${BASE_URL:-http://localhost}
@@ -22,7 +22,7 @@ services:
       # En producción: http://TU_IP o https://TU_DOMINIO
       - ADMIN_URL=${ADMIN_URL:-http://localhost}
     volumes:
-      - remarq_data:/data
+      - bizquss_data:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3100/health"]
@@ -46,13 +46,13 @@ services:
     image: postgres:16-alpine
     profiles: ["postgres"]
     environment:
-      POSTGRES_DB: remarq
-      POSTGRES_USER: remarq
+      POSTGRES_DB: bizquss
+      POSTGRES_USER: bizquss
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Necesario con perfil postgres}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
 volumes:
-  remarq_data:
+  bizquss_data:
   postgres_data:

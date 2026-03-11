@@ -1,5 +1,5 @@
 {
-  "name": "@remarq/api",
+  "name": "@bizquss/api",
   "version": "0.1.0",
   "type": "module",
   "main": "./src/server.js",
@@ -12,9 +12,9 @@
     "db:migrate": "node src/db/migrate.js"
   },
   "dependencies": {
-    "@remarq/core": "workspace:*",
-    "@remarq/adapter-sqlite": "workspace:*",
-    "@remarq/adapter-postgres": "workspace:*",
+    "@bizquss/core": "workspace:*",
+    "@bizquss/adapter-sqlite": "workspace:*",
+    "@bizquss/adapter-postgres": "workspace:*",
     "fastify": "^4.27.0",
     "fastify-plugin": "^4.5.0",
     "@fastify/cors": "^9.0.0",

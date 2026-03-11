@@ -44,6 +44,15 @@ importers:
 
   packages/api:
     dependencies:
+      '@bizquss/adapter-postgres':
+        specifier: workspace:*
+        version: link:../../adapters/postgres
+      '@bizquss/adapter-sqlite':
+        specifier: workspace:*
+        version: link:../../adapters/sqlite
+      '@bizquss/core':
+        specifier: workspace:*
+        version: link:../core
       '@fastify/cors':
         specifier: ^9.0.0
         version: 9.0.1
@@ -59,15 +68,6 @@ importers:
       '@fastify/rate-limit':
         specifier: ^9.0.0
         version: 9.1.0
-      '@remarq/adapter-postgres':
-        specifier: workspace:*
-        version: link:../../adapters/postgres
-      '@remarq/adapter-sqlite':
-        specifier: workspace:*
-        version: link:../../adapters/sqlite
-      '@remarq/core':
-        specifier: workspace:*
-        version: link:../core
       dotenv:
         specifier: ^16.4.0
         version: 16.6.1
@@ -77,6 +77,9 @@ importers:
       fastify-plugin:
         specifier: ^4.5.0
         version: 4.5.1
+      nodemailer:
+        specifier: ^6.9.0
+        version: 6.10.1
     devDependencies:
       eslint:
         specifier: ^9.0.0
@@ -1172,6 +1175,10 @@ packages:
   node-abi@3.87.0:
     resolution: {integrity: sha512-+CGM1L1CgmtheLcBuleyYOn7NWPVu0s0EJH2C4puxgEZb9h8QpR9G2dBfZJOAUhi7VQxuBPMd0hiISWcTyiYyQ==}
     engines: {node: '>=10'}
+
+  nodemailer@6.10.1:
+    resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
+    engines: {node: '>=6.0.0'}
 
   nwsapi@2.2.23:
     resolution: {integrity: sha512-7wfH4sLbt4M0gCDzGE6vzQBo0bfTKjU7Sfpqy/7gs1qBfYz2vEJH6vXcBKpO3+6Yu1telwd0t9HpyOoLEQQbIQ==}
@@ -2592,6 +2599,8 @@ snapshots:
   node-abi@3.87.0:
     dependencies:
       semver: 7.7.4
+
+  nodemailer@6.10.1: {}
 
   nwsapi@2.2.23: {}
 

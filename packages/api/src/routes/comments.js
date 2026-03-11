@@ -1,4 +1,4 @@
-import { validateComment, renderMarkdown, hashIp, getDailySalt } from '@remarq/core'
+import { validateComment, renderMarkdown, hashIp, getDailySalt } from '@bizquss/core'
 import { requireApiKey } from '../middleware/auth.js'
 
 export async function commentsRoutes(app) {

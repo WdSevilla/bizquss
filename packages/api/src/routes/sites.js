@@ -1,4 +1,4 @@
-import { validateSite, generateApiKey } from '@remarq/core'
+import { validateSite, generateApiKey } from '@bizquss/core'
 import { requireJwt } from '../middleware/auth.js'
 
 export async function sitesRoutes(app) {

@@ -10,7 +10,7 @@ import { createTransport } from 'nodemailer'
 
 async function mailerPlugin(app) {
   const host = process.env.SMTP_HOST
-  const from = process.env.SMTP_FROM ?? 'Remarq <noreply@remarq.local>'
+  const from = process.env.SMTP_FROM ?? 'Bizquss <noreply@bizquss.local>'
 
   if (!host) {
     app.log.info('SMTP_HOST no configurado — notificaciones por email desactivadas')

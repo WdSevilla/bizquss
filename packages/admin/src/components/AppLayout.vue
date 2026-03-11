@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <aside class="sidebar">
-      <div class="sidebar-logo">💬 Remarq</div>
+      <div class="sidebar-logo">💬 Bizquss</div>
 
       <nav class="sidebar-nav">
         <RouterLink :to="{ name: 'Dashboard' }">

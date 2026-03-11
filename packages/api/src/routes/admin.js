@@ -11,7 +11,7 @@
  * PATCH  /v1/admin/comments/:commentId       → moderar comentario
  * DELETE /v1/admin/comments/:commentId       → eliminar comentario (soft)
  */
-import { validateSite, generateApiKey } from '@remarq/core'
+import { validateSite, generateApiKey } from '@bizquss/core'
 import { requireJwt } from '../middleware/auth.js'
 
 export async function adminRoutes(app) {

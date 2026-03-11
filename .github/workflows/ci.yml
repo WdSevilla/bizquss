@@ -38,7 +38,7 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @remarq/widget build
+      - run: pnpm --filter @bizquss/widget build
       - uses: actions/upload-artifact@v4
         with:
           name: widget-dist

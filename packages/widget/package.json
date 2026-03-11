@@ -1,9 +1,9 @@
 {
-  "name": "@remarq/widget",
+  "name": "@bizquss/widget",
   "version": "0.1.0",
   "type": "module",
-  "main": "./dist/remarq.min.js",
-  "module": "./dist/remarq.esm.js",
+  "main": "./dist/bizquss.min.js",
+  "module": "./dist/bizquss.esm.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

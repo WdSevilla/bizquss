@@ -1,8 +1,8 @@
 /**
- * <remarq-widget> — Web Component vanilla JS
+ * <bizquss-widget> — Web Component vanilla JS
  *
  * Uso:
- *   <remarq-widget
+ *   <bizquss-widget
  *     api-url="https://comments.tudominio.com"
  *     site-key="abc123"
  *     thread-url="/blog/mi-post"
@@ -12,7 +12,7 @@
  * Compatible con cualquier framework o CMS.
  * Shadow DOM aísla estilos — no contamina el CSS del host.
  */
-class RemarqWidget extends HTMLElement {
+class BizqussWidget extends HTMLElement {
   static get observedAttributes() {
     return ['api-url', 'site-key', 'thread-url', 'theme']
   }
@@ -63,7 +63,7 @@ class RemarqWidget extends HTMLElement {
       this._renderComments()
     } catch (err) {
       this._showError('No se pudieron cargar los comentarios.')
-      console.error('[remarq]', err)
+      console.error('[bizquss]', err)
     }
   }
 
@@ -240,4 +240,4 @@ class RemarqWidget extends HTMLElement {
   }
 }
 
-customElements.define('remarq-widget', RemarqWidget)
+customElements.define('bizquss-widget', BizqussWidget)

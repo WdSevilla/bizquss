@@ -1,8 +1,8 @@
-# Remarq
+# Bizquss
 
 Sistema de comentarios open-source, self-hosteable. Alternativa a Disqus/Commento.
 
-- **Widget** — Web Component `<remarq-widget>` compatible con cualquier web o CMS
+- **Widget** — Web Component `<bizquss-widget>` compatible con cualquier web o CMS
 - **Panel de moderación** — SPA Vue 3 para aprobar, marcar spam o eliminar comentarios
 - **API** — Fastify, sin dependencias de terceros para los datos
 - **Base de datos** — SQLite (por defecto) o PostgreSQL
@@ -69,7 +69,7 @@ POSTGRES_PASSWORD=mipassword docker compose --profile postgres up -d --build
 Y en `.env`:
 ```
 DB_DRIVER=postgres
-DATABASE_URL=postgresql://remarq:mipassword@postgres:5432/remarq
+DATABASE_URL=postgresql://bizquss:mipassword@postgres:5432/bizquss
 ```
 
 ---
@@ -79,32 +79,32 @@ DATABASE_URL=postgresql://remarq:mipassword@postgres:5432/remarq
 ### Instalación directa (CDN)
 
 ```html
-<script src="http://TU_IP/widget/remarq.min.js"></script>
-<remarq-widget
+<script src="http://TU_IP/widget/bizquss.min.js"></script>
+<bizquss-widget
   api-url="http://TU_IP"
   site-key="TU_API_KEY"
-></remarq-widget>
+></bizquss-widget>
 ```
 
 ### Con bundler (npm)
 
 ```bash
-npm install @remarq/widget
+npm install @bizquss/widget
 ```
 
 ```js
-import '@remarq/widget'
+import '@bizquss/widget'
 ```
 
 ```html
-<remarq-widget api-url="http://TU_IP" site-key="TU_API_KEY"></remarq-widget>
+<bizquss-widget api-url="http://TU_IP" site-key="TU_API_KEY"></bizquss-widget>
 ```
 
 ### Atributos del widget
 
 | Atributo | Requerido | Descripción |
 |---|---|---|
-| `api-url` | Sí | URL base de tu instancia de Remarq |
+| `api-url` | Sí | URL base de tu instancia de Bizquss |
 | `site-key` | Sí | API key del sitio (se obtiene en el panel) |
 | `thread-url` | No | URL del hilo (por defecto `window.location.pathname`) |
 | `theme` | No | `auto` (por defecto), `light`, `dark` |
@@ -128,11 +128,11 @@ pnpm install
 cp .env.example .env
 
 # Ejecutar migraciones
-npx pnpm --filter @remarq/api db:migrate
+npx pnpm --filter @bizquss/api db:migrate
 
 # Arrancar API (puerto 3100) y admin (puerto 5173) en paralelo
-pnpm --filter @remarq/api dev &
-pnpm --filter @remarq/admin dev
+pnpm --filter @bizquss/api dev &
+pnpm --filter @bizquss/admin dev
 ```
 
 ### Estructura del monorepo
@@ -142,7 +142,7 @@ packages/
   core/     — repositorios y lógica de negocio (sin dependencias de framework)
   api/      — servidor Fastify  (puerto 3100)
   admin/    — panel Vue 3       (puerto 5173 en dev)
-  widget/   — Web Component <remarq-widget>
+  widget/   — Web Component <bizquss-widget>
 adapters/
   sqlite/   — adapter SQLite
   postgres/ — adapter PostgreSQL
@@ -152,9 +152,9 @@ docker/     — Dockerfile, nginx.Dockerfile, docker-compose.yml, nginx.conf
 ### Build del widget
 
 ```bash
-pnpm --filter @remarq/widget build
-# → packages/widget/dist/remarq.min.js  (para <script src>)
-# → packages/widget/dist/remarq.esm.js  (para bundlers)
+pnpm --filter @bizquss/widget build
+# → packages/widget/dist/bizquss.min.js  (para <script src>)
+# → packages/widget/dist/bizquss.esm.js  (para bundlers)
 ```
 
 ---

@@ -16,11 +16,11 @@ async function run() {
 
   let db
   if (driver === 'postgres') {
-    const { createPostgresAdapter } = await import('@remarq/adapter-postgres')
+    const { createPostgresAdapter } = await import('@bizquss/adapter-postgres')
     db = await createPostgresAdapter(process.env.DATABASE_URL)
   } else {
-    const { createSqliteAdapter } = await import('@remarq/adapter-sqlite')
-    db = createSqliteAdapter(process.env.DATABASE_URL ?? './remarq.db')
+    const { createSqliteAdapter } = await import('@bizquss/adapter-sqlite')
+    db = createSqliteAdapter(process.env.DATABASE_URL ?? './bizquss.db')
   }
 
   // Directorio de migraciones según el driver

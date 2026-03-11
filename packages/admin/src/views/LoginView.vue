@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrap">
     <div class="login-card">
-      <div class="login-logo">💬 Remarq</div>
+      <div class="login-logo">💬 Bizquss</div>
       <h1 class="login-title">Panel de administración</h1>
       <p class="login-sub">Inicia sesión para moderar tus comentarios.</p>
 

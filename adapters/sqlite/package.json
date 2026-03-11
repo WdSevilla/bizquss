@@ -1,5 +1,5 @@
 {
-  "name": "@remarq/adapter-sqlite",
+  "name": "@bizquss/adapter-sqlite",
   "version": "0.1.0",
   "type": "module",
   "main": "./src/index.js",
