@@ -4,7 +4,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Instalar dependencias primero (cache layer)
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/core/package.json    ./packages/core/
 COPY packages/api/package.json     ./packages/api/
 COPY adapters/sqlite/package.json  ./adapters/sqlite/
