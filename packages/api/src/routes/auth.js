@@ -8,6 +8,7 @@
  *   4. POST /v1/auth/logout         → (stateless JWT — solo referencia en el cliente)
  */
 import { requireJwt } from '../middleware/auth.js'
+import bcrypt from 'bcryptjs'
 
 export async function authRoutes(app) {
   const clientId     = process.env.GITHUB_CLIENT_ID
@@ -185,6 +186,68 @@ export async function authRoutes(app) {
     )
 
     return reply.redirect(`${adminUrl}/auth/callback#token=${token}`)
+  })
+
+  // ─── Email / Password ──────────────────────────────────────────────────────
+
+  // POST /v1/auth/register — crear cuenta con email y contraseña
+  app.post('/register', async (request, reply) => {
+    const { email, password, name } = request.body ?? {}
+
+    if (!email || !password) {
+      return reply.code(400).send({ error: 'Email y contraseña son requeridos' })
+    }
+    if (password.length < 6) {
+      return reply.code(400).send({ error: 'La contraseña debe tener al menos 6 caracteres' })
+    }
+
+    const existing = await request.server.users.findByEmail(email)
+    if (existing) {
+      return reply.code(409).send({ error: 'Ya existe una cuenta con ese email' })
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10)
+    const login = email.split('@')[0]
+
+    const user = await request.server.users.createWithPassword({
+      email,
+      passwordHash,
+      login,
+      name: name ?? null,
+    })
+
+    const token = app.jwt.sign(
+      { sub: user.id, login: user.login, isAdmin: Boolean(user.is_admin) },
+      { expiresIn: '30d' }
+    )
+
+    return { token }
+  })
+
+  // POST /v1/auth/login — iniciar sesión con email y contraseña
+  app.post('/login', async (request, reply) => {
+    const { email, password } = request.body ?? {}
+
+    if (!email || !password) {
+      return reply.code(400).send({ error: 'Email y contraseña son requeridos' })
+    }
+
+    const user = await request.server.users.findByEmail(email)
+    if (!user || !user.password_hash) {
+      return reply.code(401).send({ error: 'Credenciales inválidas' })
+    }
+
+    const valid = await bcrypt.compare(password, user.password_hash)
+    if (!valid) {
+      return reply.code(401).send({ error: 'Credenciales inválidas' })
+    }
+
+    const token = app.jwt.sign(
+      { sub: user.id, login: user.login, isAdmin: Boolean(user.is_admin) },
+      { expiresIn: '30d' }
+    )
+
+    return { token }
   })
 
   // GET /v1/auth/me — devuelve el usuario autenticado

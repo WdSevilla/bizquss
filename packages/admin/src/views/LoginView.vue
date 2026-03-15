@@ -24,6 +24,46 @@
         </a>
       </div>
 
+      <div class="login-divider">
+        <span>o</span>
+      </div>
+
+      <form class="login-form" @submit.prevent="handleSubmit">
+        <input
+          v-if="isRegister"
+          v-model="name"
+          type="text"
+          class="login-input"
+          placeholder="Nombre (opcional)"
+          autocomplete="name"
+        />
+        <input
+          v-model="email"
+          type="email"
+          class="login-input"
+          placeholder="Email"
+          required
+          autocomplete="email"
+        />
+        <input
+          v-model="password"
+          type="password"
+          class="login-input"
+          placeholder="Contraseña"
+          required
+          autocomplete="current-password"
+          minlength="6"
+        />
+        <p v-if="error" class="login-error">{{ error }}</p>
+        <button type="submit" class="btn btn-primary login-btn" :disabled="loading">
+          {{ loading ? 'Cargando...' : (isRegister ? 'Crear cuenta' : 'Iniciar sesión') }}
+        </button>
+      </form>
+
+      <button class="login-toggle" @click="isRegister = !isRegister">
+        {{ isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Crear una' }}
+      </button>
+
       <p class="login-hint">
         Solo los usuarios autorizados pueden acceder.
       </p>
@@ -32,10 +72,39 @@
 </template>
 
 <script setup>
-// Los botones redirigen al endpoint de la API que inicia el OAuth.
-// En dev, Vite hace proxy de /v1 → API (puerto 3100).
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth.js'
+
+const router = useRouter()
+const auth = useAuthStore()
+
 const githubUrl = '/v1/auth/github'
 const googleUrl = '/v1/auth/google'
+
+const isRegister = ref(false)
+const email = ref('')
+const password = ref('')
+const name = ref('')
+const error = ref('')
+const loading = ref(false)
+
+async function handleSubmit() {
+  error.value = ''
+  loading.value = true
+  try {
+    if (isRegister.value) {
+      await auth.register(email.value, password.value, name.value || undefined)
+    } else {
+      await auth.loginWithCredentials(email.value, password.value)
+    }
+    router.push('/')
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -68,5 +137,58 @@ const googleUrl = '/v1/auth/google'
   transition: background .15s;
 }
 .btn-google:hover { background: #f8f9fa; }
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin: 1.25rem 0;
+  color: var(--c-muted);
+  font-size: .85rem;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--c-border);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+}
+.login-input {
+  width: 100%;
+  padding: .6rem .75rem;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  font-size: .9rem;
+  background: var(--c-bg);
+  color: var(--c-text);
+  box-sizing: border-box;
+}
+.login-input:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-primary) 25%, transparent);
+}
+.login-error {
+  color: var(--c-danger, #e53e3e);
+  font-size: .8rem;
+  margin: 0;
+}
+.login-toggle {
+  background: none;
+  border: none;
+  color: var(--c-primary);
+  font-size: .85rem;
+  cursor: pointer;
+  margin-top: .75rem;
+  padding: 0;
+}
+.login-toggle:hover { text-decoration: underline; }
+
 .login-hint   { margin-top: 1.25rem; font-size: .8rem; color: var(--c-muted); }
 </style>

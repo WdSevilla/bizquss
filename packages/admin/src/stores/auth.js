@@ -29,10 +29,34 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function loginWithCredentials(email, password) {
+    const res = await fetch('/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Error de autenticación')
+    setToken(data.token)
+    await fetchMe()
+  }
+
+  async function register(email, password, name) {
+    const res = await fetch('/v1/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Error al crear cuenta')
+    setToken(data.token)
+    await fetchMe()
+  }
+
   function logout() {
     setToken(null)
     user.value = null
   }
 
-  return { token, user, isLoggedIn, setToken, fetchMe, logout }
+  return { token, user, isLoggedIn, setToken, fetchMe, logout, loginWithCredentials, register }
 })

@@ -77,6 +77,27 @@ export class UserRepository {
     return user
   }
 
+  async findByEmail(email) {
+    const [user] = await this.db.query(
+      `SELECT * FROM users WHERE email = $1`,
+      [email]
+    )
+    return user ?? null
+  }
+
+  async createWithPassword({ email, passwordHash, login, name }) {
+    const [{ count }] = await this.db.query(`SELECT COUNT(*) as count FROM users`)
+    const isAdmin = Number(count) === 0 ? 1 : 0
+
+    const [user] = await this.db.query(
+      `INSERT INTO users (email, password_hash, login, name, is_admin)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [email, passwordHash, login, name ?? null, isAdmin]
+    )
+    return user
+  }
+
   async countAll() {
     const [{ count }] = await this.db.query(`SELECT COUNT(*) as count FROM users`)
     return Number(count)
